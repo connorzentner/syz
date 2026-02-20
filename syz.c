@@ -121,6 +121,16 @@ int main() {
     OSInfo os = get_os_info();
     
     printf("\n");
+    printf(" (       )    )  \n");
+    printf(" )\\ ) ( /( ( /(  \n");
+    printf("(()/( )\\()))\\()) \n");
+    printf(" /(_)|(_)\\((_)\\  \n");
+    printf("(_))__ ((_)_((_) \n");
+    printf("/ __\\ \\ / /_  /  \n");
+    printf("\\__ \\\\ V / / /   \n");
+    printf("|___/ |_| /___|  \n");
+
+    printf("\n");
     printf(TEXT_BOLD "User:   " TEXT_RESET "%s\n", uh.user);
     printf(TEXT_BOLD "Host:   " TEXT_RESET "%s\n", uh.host);
     printf(TEXT_BOLD "OS:     " TEXT_RESET "%s\n", os.name);
