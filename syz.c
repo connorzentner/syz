@@ -30,6 +30,10 @@ typedef struct {
     char name[128];
 } OSInfo;
 
+typedef struct {
+    char shell[64];
+} Shell;
+
 // Function for returning memory
 Memory get_memory() {
     long total = 0, available = 0;
@@ -110,6 +114,24 @@ OSInfo get_os_info() {
     return os;
 }
 
+Shell get_shell() {
+    Shell s = { .shell = "unknown" };
+    pid_t ppid = getppid();
+    char path[64];
+
+    snprintf(path, sizeof(path), "/proc/%d/comm", ppid);
+
+    FILE *fp = fopen(path, "r");
+    if (fp) {
+        if (fgets(s.shell, sizeof(s.shell), fp)) {
+            // Removing trailing newline
+            s.shell[strcspn(s.shell, "\n")] = 0;
+        }
+        fclose(fp);
+    }
+    return s;
+}
+
 // Driver function
 int main() {
     struct utsname buffer;
@@ -119,7 +141,8 @@ int main() {
     Uptime up = get_uptime();
     UserHost uh = get_user_host();
     OSInfo os = get_os_info();
-    
+    Shell s = get_shell();
+
     printf("\n");
     printf(" (       )    )  \n");
     printf(" )\\ ) ( /( ( /(  \n");
@@ -136,8 +159,9 @@ int main() {
     printf(TEXT_BOLD "OS:     " TEXT_RESET "%s\n", os.name);
     printf(TEXT_BOLD "Kernel: " TEXT_RESET "%s %s\n", buffer.sysname, buffer.release);
     printf(TEXT_BOLD "System: " TEXT_RESET "%s\n", buffer.machine);
-    printf(TEXT_BOLD "Memory: " TEXT_RESET "%ld | %ld MB\n", mem.used, mem.total);
+    printf(TEXT_BOLD "Shell:  " TEXT_RESET "%s\n", s.shell);
     printf(TEXT_BOLD "Uptime: " TEXT_RESET "%dh %dm\n", up.hours, up.minutes);
+    printf(TEXT_BOLD "Memory: " TEXT_RESET "%ld | %ld MB\n", mem.used, mem.total);
     printf("\n");
 
     return 0;
