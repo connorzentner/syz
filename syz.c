@@ -7,8 +7,16 @@
 #include <pwd.h>
 
 // Macros for text formating
-#define TEXT_BOLD  "\033[1m"
-#define TEXT_RESET "\033[0m"
+#define BOLD  "\033[1m"
+#define RESET "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN    "\033[36m"
+#define WHITE   "\033[37m"
+#define BLACK   "\033[30m"
 
 // Data structures
 typedef struct {
@@ -114,8 +122,9 @@ OSInfo get_os_info() {
     return os;
 }
 
+// Function for returning shell
 Shell get_shell() {
-    Shell s = { .shell = "unknown" };
+    Shell sh = { .shell = "unknown" };
     pid_t ppid = getppid();
     char path[64];
 
@@ -123,13 +132,13 @@ Shell get_shell() {
 
     FILE *fp = fopen(path, "r");
     if (fp) {
-        if (fgets(s.shell, sizeof(s.shell), fp)) {
+        if (fgets(sh.shell, sizeof(sh.shell), fp)) {
             // Removing trailing newline
-            s.shell[strcspn(s.shell, "\n")] = 0;
+            sh.shell[strcspn(sh.shell, "\n")] = 0;
         }
         fclose(fp);
     }
-    return s;
+    return sh;
 }
 
 // Driver function
@@ -141,27 +150,45 @@ int main() {
     Uptime up = get_uptime();
     UserHost uh = get_user_host();
     OSInfo os = get_os_info();
-    Shell s = get_shell();
+    Shell sh = get_shell();
+
+    const char *red         = "\033[31m";
+    const char *red_br  = "\033[91m";
+    const char *yellow      = "\033[33m";
+    const char *yellow_br = "\033[93m";
+    const char *reset       = "\033[0m";
+
+    printf(BOLD "%s (       )    )  \n", red);
+    printf(BOLD "%s )\\ ) ( /( ( /(  \n", red);
+    printf(BOLD "%s(()/( )\\()))\\()) \n", red_br);
+    printf(BOLD "%s /(_)|(_)\\((_)\\  \n", red_br);
+    printf(BOLD "%s(_))__ ((_)_((_) \n", yellow);
+    printf(BOLD "%s/ __\\ \\ / /_  /  \n", yellow);
+    printf(BOLD "%s\\__ \\\\ V / / /   \n", yellow_br);
+    printf(BOLD "%s|___/ |_| /___|  %s\n", yellow_br, reset);
 
     printf("\n");
-    printf(" (       )    )  \n");
-    printf(" )\\ ) ( /( ( /(  \n");
-    printf("(()/( )\\()))\\()) \n");
-    printf(" /(_)|(_)\\((_)\\  \n");
-    printf("(_))__ ((_)_((_) \n");
-    printf("/ __\\ \\ / /_  /  \n");
-    printf("\\__ \\\\ V / / /   \n");
-    printf("|___/ |_| /___|  \n");
-
-    printf("\n");
-    printf(TEXT_BOLD "User:   " TEXT_RESET "%s\n", uh.user);
-    printf(TEXT_BOLD "Host:   " TEXT_RESET "%s\n", uh.host);
-    printf(TEXT_BOLD "OS:     " TEXT_RESET "%s\n", os.name);
-    printf(TEXT_BOLD "Kernel: " TEXT_RESET "%s %s\n", buffer.sysname, buffer.release);
-    printf(TEXT_BOLD "System: " TEXT_RESET "%s\n", buffer.machine);
-    printf(TEXT_BOLD "Shell:  " TEXT_RESET "%s\n", s.shell);
-    printf(TEXT_BOLD "Uptime: " TEXT_RESET "%dh %dm\n", up.hours, up.minutes);
-    printf(TEXT_BOLD "Memory: " TEXT_RESET "%ld | %ld MB\n", mem.used, mem.total);
+    printf(BOLD RED     "USER    " RESET "%s\n", uh.user);
+    printf(BOLD YELLOW  "HOST   󰇥 " RESET "%s\n", uh.host);
+    printf(BOLD GREEN   "SHELL   " RESET "%s\n", sh.shell);
+    printf(BOLD CYAN    "DISTRO  " RESET "%s\n", os.name);
+    printf(BOLD BLUE    "KERNEL 󰌽 " RESET "%s %s\n", buffer.sysname, buffer.release);
+    printf(BOLD MAGENTA "UPTIME 󰥔 " RESET "%dh %dm\n", up.hours, up.minutes);
+    printf(BOLD WHITE   "MEMORY 󰍛 " RESET "%ld 󰿟 %ld MB\n", mem.used, mem.total);
+    printf(BOLD RED     "C"
+                YELLOW  "O"
+                GREEN   "L"
+                CYAN    "O"
+                BLUE    "R"
+                MAGENTA "S "
+                WHITE   " "
+                RED     " "
+                YELLOW  " "
+                GREEN   " "
+                CYAN    " "
+                BLUE    " "
+                MAGENTA " "
+                BLACK   " " RESET "\n");
     printf("\n");
 
     return 0;
