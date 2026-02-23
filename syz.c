@@ -16,7 +16,6 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
-#define BLACK   "\033[30m"
 
 // Data structures
 typedef struct {
@@ -153,42 +152,26 @@ int main() {
     Shell sh = get_shell();
 
     const char *red         = "\033[31m";
-    const char *red_br  = "\033[91m";
     const char *yellow      = "\033[33m";
-    const char *yellow_br = "\033[93m";
     const char *reset       = "\033[0m";
 
     printf(BOLD "%s (       )    )  \n", red);
     printf(BOLD "%s )\\ ) ( /( ( /(  \n", red);
-    printf(BOLD "%s(()/( )\\()))\\()) \n", red_br);
-    printf(BOLD "%s /(_)|(_)\\((_)\\  \n", red_br);
-    printf(BOLD "%s(_))__ ((_)_((_) \n", yellow);
+    printf(BOLD "%s(()/( )\\()))\\()) \n", red);
+    printf(BOLD "%s /(_)|(_)\\((_)\\  \n", red);
+    printf(BOLD "%s(_))__ ((_)_((_) \n", red);
     printf(BOLD "%s/ __\\ \\ / /_  /  \n", yellow);
-    printf(BOLD "%s\\__ \\\\ V / / /   \n", yellow_br);
-    printf(BOLD "%s|___/ |_| /___|  %s\n", yellow_br, reset);
+    printf(BOLD "%s\\__ \\\\ V / / /   \n", yellow);
+    printf(BOLD "%s|___/ |_| /___|  %s\n", yellow, reset);
 
     printf("\n");
-    printf(BOLD RED     "USER    " RESET "%s\n", uh.user);
-    printf(BOLD YELLOW  "HOST   󰇥 " RESET "%s\n", uh.host);
-    printf(BOLD GREEN   "SHELL   " RESET "%s\n", sh.shell);
-    printf(BOLD CYAN    "DISTRO  " RESET "%s\n", os.name);
-    printf(BOLD BLUE    "KERNEL 󰌽 " RESET "%s %s\n", buffer.sysname, buffer.release);
-    printf(BOLD MAGENTA "UPTIME 󰥔 " RESET "%dh %dm\n", up.hours, up.minutes);
-    printf(BOLD WHITE   "MEMORY 󰍛 " RESET "%ld 󰿟 %ld MB\n", mem.used, mem.total);
-    printf(BOLD RED     "C"
-                YELLOW  "O"
-                GREEN   "L"
-                CYAN    "O"
-                BLUE    "R"
-                MAGENTA "S "
-                WHITE   " "
-                RED     " "
-                YELLOW  " "
-                GREEN   " "
-                CYAN    " "
-                BLUE    " "
-                MAGENTA " "
-                BLACK   " " RESET "\n");
+    printf(BOLD RED     " USER    " RESET "%s\n", uh.user);
+    printf(BOLD YELLOW  " HOST   󰇥 " RESET "%s\n", uh.host);
+    printf(BOLD GREEN   " SHELL   " RESET "%s\n", sh.shell);
+    printf(BOLD CYAN    " DISTRO  " RESET "%s\n", os.name);
+    printf(BOLD BLUE    " KERNEL 󰌽 " RESET "%s %s\n", buffer.sysname, buffer.release);
+    printf(BOLD MAGENTA " UPTIME 󰥔 " RESET "%dh %dm\n", up.hours, up.minutes);
+    printf(BOLD WHITE   " MEMORY 󰍛 " RESET "%ld 󰿟 %ld MB\n", mem.used, mem.total);
     printf("\n");
 
     return 0;
