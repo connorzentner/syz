@@ -9,6 +9,7 @@
 // Macros for text formating
 #define BOLD  "\033[1m"
 #define RESET "\033[0m"
+#define WHITE   "\033[37m"
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
 #define YELLOW  "\033[33m"
@@ -16,6 +17,8 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
+
+#define BOX_COLOR "\033[38;5;239m"
 
 // Data structures
 typedef struct {
@@ -140,6 +143,12 @@ Shell get_shell() {
     return sh;
 }
 
+
+void print_row(const char* icon, const char* label, const char* color, const char* value) {
+    printf(BOX_COLOR "  │ " RESET "%s%s %-10s " BOX_COLOR "│  " RESET "%s%s\n", 
+           color, icon, label, color, value);
+}
+
 // Driver function
 int main() {
     struct utsname buffer;
@@ -155,24 +164,42 @@ int main() {
     const char *yellow      = "\033[33m";
     const char *reset       = "\033[0m";
 
-    printf(BOLD "%s (       )    )  \n", red);
-    printf(BOLD "%s )\\ ) ( /( ( /(  \n", red);
-    printf(BOLD "%s(()/( )\\()))\\()) \n", red);
-    printf(BOLD "%s /(_)|(_)\\((_)\\  \n", red);
-    printf(BOLD "%s(_))__ ((_)_((_) \n", red);
-    printf(BOLD "%s/ __\\ \\ / /_  /  \n", yellow);
-    printf(BOLD "%s\\__ \\\\ V / / /   \n", yellow);
-    printf(BOLD "%s|___/ |_| /___|  %s\n", yellow, reset);
+    char kernel_full[64], uptime_full[32], mem_full[32];
+    snprintf(kernel_full, sizeof(kernel_full), "%s %s", buffer.sysname, buffer.release);
+    snprintf(uptime_full, sizeof(uptime_full), "%dh %dm", up.hours, up.minutes);
+    snprintf(mem_full, sizeof(mem_full), "%ld/%ld MB", mem.used, mem.total);
+    
+    printf("\n");
+    printf(BOLD "  %s (       )    )  \n", red);
+    printf(BOLD "  %s )\\ ) ( /( ( /(  \n", red);
+    printf(BOLD "  %s(()/( )\\()))\\()) \n", red);
+    printf(BOLD "  %s /(_)|(_)\\((_)\\  \n", red);
+    printf(BOLD "  %s(_))__ ((_)_((_) \n", red);
+    printf(BOLD "  %s/ __\\ \\ / /_  /  \n", yellow);
+    printf(BOLD "  %s\\__ \\\\ V / / /   \n", yellow);
+    printf(BOLD "  %s|___/ |_| /___|  %s\n", yellow, reset);
 
+    printf(BOX_COLOR "  ┌──────────────┐\n");
+
+    print_row(BOLD "", "USER",    RED,     uh.user);
+    print_row(BOLD "󰇥", "HOST",    YELLOW,  uh.host);
+    print_row(BOLD "", "SHELL",   GREEN,   sh.shell);
+    print_row(BOLD "", "DISTRO",  CYAN,    os.name);
+    print_row(BOLD "󰌽", "KERNEL",  BLUE,    kernel_full);
+    print_row(BOLD "󰥔", "UPTIME",  MAGENTA, uptime_full);
+    print_row(BOLD "󰍛", "MEMORY",  WHITE,   mem_full);
+
+    printf(BOX_COLOR "  ├──────────────┤\n");
+
+    printf(BOX_COLOR "  │ " RESET BOLD "󰏘 COLORS     " BOX_COLOR "│  " RESET);
+    
+    int color_order[] = { 7, 1, 3, 2, 6, 4, 5 };
+    for (int i = 0; i < 7; i++) {
+        printf("\033[3%dm󰈸 " RESET, color_order[i]);
+    }
     printf("\n");
-    printf(BOLD RED     " USER    " RESET "%s\n", uh.user);
-    printf(BOLD YELLOW  " HOST   󰇥 " RESET "%s\n", uh.host);
-    printf(BOLD GREEN   " SHELL   " RESET "%s\n", sh.shell);
-    printf(BOLD CYAN    " DISTRO  " RESET "%s\n", os.name);
-    printf(BOLD BLUE    " KERNEL 󰌽 " RESET "%s %s\n", buffer.sysname, buffer.release);
-    printf(BOLD MAGENTA " UPTIME 󰥔 " RESET "%dh %dm\n", up.hours, up.minutes);
-    printf(BOLD WHITE   " MEMORY 󰍛 " RESET "%ld 󰿟 %ld MB\n", mem.used, mem.total);
-    printf("\n");
+
+    printf(BOX_COLOR "  └──────────────┘" RESET "\n\n");
 
     return 0;
 }
