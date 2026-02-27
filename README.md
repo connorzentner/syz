@@ -1,7 +1,7 @@
-# Project Title
+# syz
 
-syz
+A simple and straight to the point system fetcher.
 
 ## Description
 
-A simple and straight to the point system fetcher.
+Title support for all major distros coming soon.

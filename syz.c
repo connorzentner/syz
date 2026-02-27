@@ -9,7 +9,6 @@
 // Macros for text formating
 #define BOLD  "\033[1m"
 #define RESET "\033[0m"
-#define WHITE   "\033[37m"
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
 #define YELLOW  "\033[33m"
@@ -17,8 +16,7 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
-
-#define BOX_COLOR "\033[38;5;239m"
+#define BLACK   "\033[30m"
 
 // Data structures
 typedef struct {
@@ -38,6 +36,7 @@ typedef struct {
 
 typedef struct {
     char name[128];
+    char id[32];
 } OSInfo;
 
 typedef struct {
@@ -101,7 +100,7 @@ UserHost get_user_host() {
 
 // Funtion for returning OS info
 OSInfo get_os_info() {
-    OSInfo os = {"Unknown"};
+    OSInfo os = {"generic"};
     FILE *fp = fopen("/etc/os-release", "r");
 
     if (fp) {
@@ -109,7 +108,6 @@ OSInfo get_os_info() {
         while (fgets(line, sizeof(line), fp)) {
             if (strncmp(line, "PRETTY_NAME=", 12) == 0) {
                 char *name_start = line + 12;
-
                 if (*name_start == '\"') name_start++;
 
                 char *name_end = strpbrk(name_start, "\"\n");
@@ -117,6 +115,14 @@ OSInfo get_os_info() {
 
                 strncpy(os.name, name_start, sizeof(os.name) - 1);
                 break;
+            }
+
+            if (strncmp(line, "ID=", 3) == 0) {
+                char *start = line + 3;
+                if (*start == '\"') start++;
+                char *end = strpbrk(start, "\"\n");
+                if (end) *end = '\0';
+                strncpy(os.id, start, sizeof(os.id) - 1);
             }
         }
         fclose(fp);
@@ -143,9 +149,36 @@ Shell get_shell() {
     return sh;
 }
 
+// Function for printing distro
+void print_ascii_art(const char *id) {
+    if (strcmp(id, "arch") == 0) {
+        printf("\n");
+        printf(BOLD CYAN "   ┏┓   ┓ \n"
+                         "   ┣┫┏┓┏┣┓\n"
+                         "   ┛┗┛ ┗┛┗\n" RESET);
+    }
+    else if (strcmp(id, "debian") == 0) {
+        printf("\n");
+        printf(BOLD RED "   ┳┓  ┓ •    \n"
+                        "   ┃┃┏┓┣┓┓┏┓┏┓\n"
+                        "   ┻┛┗ ┗┛┗┗┻┛┗\n" RESET);
+    }
+    else if (strcmp(id, "nixos") == 0) {
+        printf("\n");
+        printf(BOLD BLUE "   ┳┓•  ┏┓┏┓\n"
+                         "   ┃┃┓┓┏┃┃┗┓\n"
+                         "   ┛┗┗┛┗┗┛┗┛\n" RESET);
+    }
+    else {
+        printf(BOLD WHITE  "   ┏┓┓┏┏┓\n"
+                    RED    "   ┗┓┗┫┏┛\n"
+                    YELLOW "   ┗┛┗┛┗┛\n" RESET);
+            }
+}
 
+// Function for border formating
 void print_row(const char* icon, const char* label, const char* color, const char* value) {
-    printf(BOX_COLOR "  │ " RESET "%s%s %-10s " BOX_COLOR "│  " RESET "%s%s\n", 
+    printf(WHITE "  │ " RESET "%s%s " WHITE "%-6s " WHITE "│ " RESET "%s%s\n", 
            color, icon, label, color, value);
 }
 
@@ -160,46 +193,29 @@ int main() {
     OSInfo os = get_os_info();
     Shell sh = get_shell();
 
-    const char *red         = "\033[31m";
-    const char *yellow      = "\033[33m";
-    const char *reset       = "\033[0m";
-
     char kernel_full[64], uptime_full[32], mem_full[32];
     snprintf(kernel_full, sizeof(kernel_full), "%s %s", buffer.sysname, buffer.release);
     snprintf(uptime_full, sizeof(uptime_full), "%dh %dm", up.hours, up.minutes);
-    snprintf(mem_full, sizeof(mem_full), "%ld/%ld MB", mem.used, mem.total);
+    snprintf(mem_full, sizeof(mem_full), YELLOW "%ld" WHITE " | " BLUE "%ld", mem.used, mem.total);
     
-    printf("\n");
-    printf(BOLD "  %s (       )    )  \n", red);
-    printf(BOLD "  %s )\\ ) ( /( ( /(  \n", red);
-    printf(BOLD "  %s(()/( )\\()))\\()) \n", red);
-    printf(BOLD "  %s /(_)|(_)\\((_)\\  \n", red);
-    printf(BOLD "  %s(_))__ ((_)_((_) \n", red);
-    printf(BOLD "  %s/ __\\ \\ / /_  /  \n", yellow);
-    printf(BOLD "  %s\\__ \\\\ V / / /   \n", yellow);
-    printf(BOLD "  %s|___/ |_| /___|  %s\n", yellow, reset);
+    print_ascii_art(os.id);
 
-    printf(BOX_COLOR "  ┌──────────────┐\n");
-
-    print_row(BOLD "", "USER",    RED,     uh.user);
-    print_row(BOLD "󰇥", "HOST",    YELLOW,  uh.host);
-    print_row(BOLD "", "SHELL",   GREEN,   sh.shell);
-    print_row(BOLD "", "DISTRO",  CYAN,    os.name);
-    print_row(BOLD "󰌽", "KERNEL",  BLUE,    kernel_full);
-    print_row(BOLD "󰥔", "UPTIME",  MAGENTA, uptime_full);
-    print_row(BOLD "󰍛", "MEMORY",  WHITE,   mem_full);
-
-    printf(BOX_COLOR "  ├──────────────┤\n");
-
-    printf(BOX_COLOR "  │ " RESET BOLD "󰏘 COLORS     " BOX_COLOR "│  " RESET);
-    
-    int color_order[] = { 7, 1, 3, 2, 6, 4, 5 };
-    for (int i = 0; i < 7; i++) {
-        printf("\033[3%dm󰈸 " RESET, color_order[i]);
+    printf(WHITE "  ┌──────────┐\n");
+    print_row(BOLD   "󰀆", "USER",    RED,     uh.user);
+    print_row(BOLD   "󰇥", "HOST",    YELLOW,  uh.host);
+    print_row(BOLD   "", "SHELL",   GREEN,   sh.shell);
+    print_row(BOLD   "", "DISTRO",  CYAN,    os.name);
+    print_row(BOLD   "󰌽", "KERNEL",  BLUE,    kernel_full);
+    print_row(BOLD   "󰥔", "UPTIME",  MAGENTA, uptime_full);
+    print_row(BOLD   "󰍛", "MEMORY",  WHITE,   mem_full);
+    printf(WHITE "  ├──────────┤\n");
+    printf(WHITE "  │ " RESET BOLD "󰏘 COLORS " WHITE "│ " RESET);
+    int color_order[] = { 7, 1, 3, 2, 6, 4, 5, 0 };
+    for (int i = 0; i < 8; i++) {
+        printf("\033[3%dm󱡔 " RESET, color_order[i]);
     }
     printf("\n");
-
-    printf(BOX_COLOR "  └──────────────┘" RESET "\n\n");
+    printf(WHITE "  └──────────┘" RESET "\n\n");
 
     return 0;
 }
