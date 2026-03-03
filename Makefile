@@ -1,5 +1,12 @@
-syz: syz.c
-	gcc -o syz syz.c
+CC = gcc 
+CFLAGS = -Wall -Wextra -g
 
-clean:
-	rm syz
+TARGET = syz
+
+SRC = syz.c distro.c
+
+$(TARGET): $(SRC) colors.h
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+
+clean: 
+	rm $(TARGET)

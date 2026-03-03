@@ -5,20 +5,9 @@
 #include <sys/utsname.h>
 #include <limits.h>
 #include <pwd.h>
+#include "colors.h"
 
-// Macros for text formating
-#define BOLD  "\033[1m"
-#define RESET "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define WHITE   "\033[37m"
-#define BLACK   "\033[30m"
-
-// Data structures
+// Stat structures
 typedef struct {
     long used;
     long total;
@@ -77,8 +66,8 @@ Uptime get_uptime() {
     int m = (s % 3600) / 60;
 
     return (Uptime) {
-        .hours = (int)(info.uptime / 3600),
-        .minutes = (int)((info.uptime % 3600) / 60)
+        .hours = h,
+        .minutes = m
     };
 }
 
@@ -100,7 +89,8 @@ UserHost get_user_host() {
 
 // Funtion for returning OS info
 OSInfo get_os_info() {
-    OSInfo os = {"generic"};
+    OSInfo os = {0};
+    strncpy(os.name, "generic", sizeof(os.name) - 1);
     FILE *fp = fopen("/etc/os-release", "r");
 
     if (fp) {
@@ -149,33 +139,6 @@ Shell get_shell() {
     return sh;
 }
 
-// Function for printing distro
-void print_ascii_art(const char *id) {
-    if (strcmp(id, "arch") == 0) {
-        printf("\n");
-        printf(BOLD CYAN "   ┏┓   ┓ \n"
-                         "   ┣┫┏┓┏┣┓\n"
-                         "   ┛┗┛ ┗┛┗\n" RESET);
-    }
-    else if (strcmp(id, "debian") == 0) {
-        printf("\n");
-        printf(BOLD RED "   ┳┓  ┓ •    \n"
-                        "   ┃┃┏┓┣┓┓┏┓┏┓\n"
-                        "   ┻┛┗ ┗┛┗┗┻┛┗\n" RESET);
-    }
-    else if (strcmp(id, "nixos") == 0) {
-        printf("\n");
-        printf(BOLD BLUE "   ┳┓•  ┏┓┏┓\n"
-                         "   ┃┃┓┓┏┃┃┗┓\n"
-                         "   ┛┗┗┛┗┗┛┗┛\n" RESET);
-    }
-    else {
-        printf(BOLD WHITE  "   ┏┓┓┏┏┓\n"
-                    RED    "   ┗┓┗┫┏┛\n"
-                    YELLOW "   ┗┛┗┛┗┛\n" RESET);
-            }
-}
-
 // Function for border formating
 void print_row(const char* icon, const char* label, const char* color, const char* value) {
     printf(WHITE "  │ " RESET "%s%s " WHITE "%-6s " WHITE "│ " RESET "%s%s\n", 
@@ -193,7 +156,10 @@ int main() {
     OSInfo os = get_os_info();
     Shell sh = get_shell();
 
-    char kernel_full[64], uptime_full[32], mem_full[32];
+    char kernel_full[256];
+    char uptime_full[64];
+    char mem_full[256];
+
     snprintf(kernel_full, sizeof(kernel_full), "%s %s", buffer.sysname, buffer.release);
     snprintf(uptime_full, sizeof(uptime_full), "%dh %dm", up.hours, up.minutes);
     snprintf(mem_full, sizeof(mem_full), YELLOW "%ld" WHITE " | " BLUE "%ld", mem.used, mem.total);
