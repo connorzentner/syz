@@ -36,7 +36,7 @@ void print_ascii_art(const char *id) {
                           "   ┗┛┣┛┗ ┛┗┗┛┗┛┗┛┗┛\n"
                           "     ┛             \n" RESET);
     }
-    else if (strcmp(id, "mint") == 0) {
+    else if (strcmp(id, "linuxmint") == 0) {
         printf("\n");
         printf(BOLD GREEN "   ┳┳┓•    \n"
                           "   ┃┃┃┓┏┓╋ \n"

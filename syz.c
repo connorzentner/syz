@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -95,6 +96,9 @@ OSInfo get_os_info() {
 
     if (fp) {
         char line[256];
+        bool found_name = false;
+        bool found_id = false;
+
         while (fgets(line, sizeof(line), fp)) {
             if (strncmp(line, "PRETTY_NAME=", 12) == 0) {
                 char *name_start = line + 12;
@@ -104,16 +108,18 @@ OSInfo get_os_info() {
                 if (name_end) *name_end = '\0';
 
                 strncpy(os.name, name_start, sizeof(os.name) - 1);
-                break;
-            }
+                found_name = true;
+            } 
 
-            if (strncmp(line, "ID=", 3) == 0) {
+            else if (strncmp(line, "ID=", 3) == 0) {
                 char *start = line + 3;
                 if (*start == '\"') start++;
                 char *end = strpbrk(start, "\"\n");
                 if (end) *end = '\0';
                 strncpy(os.id, start, sizeof(os.id) - 1);
+                found_id = true;
             }
+            if (found_name && found_id) break;
         }
         fclose(fp);
     }
