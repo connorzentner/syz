@@ -5,7 +5,7 @@ TARGET = syz
 
 SRC = syz.c distro.c
 
-$(TARGET): $(SRC) colors.h
+$(TARGET): $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 clean: 

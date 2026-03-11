@@ -1,7 +1,5 @@
-#ifndef COLORS_H
-#define COLORS_H
+#pragma once
 
-// Macros for text formating
 #define BOLD  "\033[1m"
 #define RESET "\033[0m"
 #define RED     "\033[31m"
@@ -14,5 +12,3 @@
 #define BLACK   "\033[30m"
 
 void print_ascii_art(const char *id);
-
-#endif
