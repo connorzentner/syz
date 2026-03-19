@@ -78,6 +78,7 @@ print_distro_ascii(const char *id)
         }
         else {
         generic:
+            printf("\n");
             printf(BOLD WHITE  "   ┏┓┓┏┏┓\n"
                         RED    "   ┗┓┗┫┏┛\n"
                         YELLOW "   ┗┛┗┛┗┛\n" RESET);
