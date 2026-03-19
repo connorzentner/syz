@@ -6,9 +6,8 @@
 #include <sys/utsname.h>
 #include <limits.h>
 #include <pwd.h>
-#include "colors.h"
+#include "distro.h"
 
-// Stat structures
 typedef struct {
     long used;
     long total;
@@ -33,7 +32,6 @@ typedef struct {
     char shell[64];
 } Shell;
 
-// Function for returning memory
 Memory get_memory() {
     long total = 0, available = 0;
     FILE *fp = fopen("/proc/meminfo", "r");
@@ -53,11 +51,10 @@ Memory get_memory() {
     };
 }
 
-// Function for returning uptime
 Uptime get_uptime() {
     struct sysinfo info;
     
-    // Initializing the struct to avoid garbage value
+    /* Initializing the struct to avoid garbage value */
     if (sysinfo(&info) != 0) {
         return (Uptime){0, 0};
     }
@@ -72,7 +69,6 @@ Uptime get_uptime() {
     };
 }
 
-// Function for returning host and user names
 UserHost get_user_host() {
     UserHost uh = {0};
 
@@ -88,7 +84,7 @@ UserHost get_user_host() {
     return uh;
 }
 
-// Funtion for returning OS info
+/* Funtion for returning OS info */
 OSInfo get_os_info() {
     OSInfo os = {0};
     strncpy(os.name, "generic", sizeof(os.name) - 1);
@@ -126,7 +122,6 @@ OSInfo get_os_info() {
     return os;
 }
 
-// Function for returning shell
 Shell get_shell() {
     Shell sh = { .shell = "unknown" };
     pid_t ppid = getppid();
@@ -137,7 +132,7 @@ Shell get_shell() {
     FILE *fp = fopen(path, "r");
     if (fp) {
         if (fgets(sh.shell, sizeof(sh.shell), fp)) {
-            // Removing trailing newline
+            /* Removing trailing newline */
             sh.shell[strcspn(sh.shell, "\n")] = 0;
         }
         fclose(fp);
@@ -145,14 +140,17 @@ Shell get_shell() {
     return sh;
 }
 
-// Function for border formating
-void print_row(const char* icon, const char* label, const char* color, const char* value) {
+void 
+print_row(const char* icon, const char* label, 
+          const char* color, const char* value) 
+{
     printf(WHITE "  │ " RESET "%s%s " WHITE "%-6s " WHITE "│ " RESET "%s%s\n", 
            color, icon, label, color, value);
 }
 
-// Driver function
-int main() {
+int 
+main(void) 
+{
     struct utsname buffer;
     uname(&buffer);
 
@@ -170,7 +168,7 @@ int main() {
     snprintf(uptime_full, sizeof(uptime_full), "%dh %dm", up.hours, up.minutes);
     snprintf(mem_full, sizeof(mem_full), YELLOW "%ld" WHITE " | " BLUE "%ld", mem.used, mem.total);
     
-    print_ascii_art(os.id);
+    print_distro_ascii(os.id);
 
     printf(WHITE "  ┌──────────┐\n");
     print_row(BOLD   "󰀆", "USER",    RED,     uh.user);

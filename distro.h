@@ -11,4 +11,4 @@
 #define WHITE   "\033[37m"
 #define BLACK   "\033[30m"
 
-void print_ascii_art(const char *id);
+void print_distro_ascii(const char *id);

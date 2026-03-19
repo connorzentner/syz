@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -g
 
 TARGET = syz
 
-SRC = syz.c distro.c
+SRC = main.c distro.c
 
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
