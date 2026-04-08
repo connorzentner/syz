@@ -39,13 +39,17 @@ Memory get_memory() {
     if (fp) {
         char line[256];
         while (fgets(line, sizeof(line), fp)) {
-            if (sscanf(line, "MemTotal: %ld", &total) == 1) continue;
-            if (sscanf(line, "MemAvailable: %ld", &available) == 1) continue;
+
+            if (sscanf(line, "MemTotal: %ld", &total) == 1)
+                continue;
+
+            if (sscanf(line, "MemAvailable: %ld", &available) == 1)
+                continue;
         }
         fclose(fp);
     }
     
-    return (Memory){
+    return (Memory) {
         .total = total / 1024,
         .used = (total - available) / 1024
     };
@@ -55,9 +59,8 @@ Uptime get_uptime() {
     struct sysinfo info;
     
     /* Initializing the struct to avoid garbage value */
-    if (sysinfo(&info) != 0) {
+    if (sysinfo(&info) != 0)
         return (Uptime){0, 0};
-    }
 
     long s = info.uptime;
     int h = s / 3600;
@@ -73,8 +76,8 @@ UserHost get_user_host() {
     UserHost uh = {0};
 
     gethostname(uh.host, sizeof(uh.host));
-
     struct passwd *pw = getpwuid(geteuid());
+
     if (pw) {
         snprintf(uh.user, sizeof(uh.user), "%s", pw->pw_name);
     } else {
@@ -84,7 +87,6 @@ UserHost get_user_host() {
     return uh;
 }
 
-/* Funtion for returning OS info */
 OSInfo get_os_info() {
     OSInfo os = {0};
     strncpy(os.name, "generic", sizeof(os.name) - 1);
@@ -98,10 +100,12 @@ OSInfo get_os_info() {
         while (fgets(line, sizeof(line), fp)) {
             if (strncmp(line, "PRETTY_NAME=", 12) == 0) {
                 char *name_start = line + 12;
-                if (*name_start == '\"') name_start++;
+                if (*name_start == '\"')
+                    name_start++;
 
                 char *name_end = strpbrk(name_start, "\"\n");
-                if (name_end) *name_end = '\0';
+                if (name_end)
+                    *name_end = '\0';
 
                 strncpy(os.name, name_start, sizeof(os.name) - 1);
                 found_name = true;
@@ -115,7 +119,8 @@ OSInfo get_os_info() {
                 strncpy(os.id, start, sizeof(os.id) - 1);
                 found_id = true;
             }
-            if (found_name && found_id) break;
+            if (found_name && found_id)
+                break;
         }
         fclose(fp);
     }
@@ -132,7 +137,6 @@ Shell get_shell() {
     FILE *fp = fopen(path, "r");
     if (fp) {
         if (fgets(sh.shell, sizeof(sh.shell), fp)) {
-            /* Removing trailing newline */
             sh.shell[strcspn(sh.shell, "\n")] = 0;
         }
         fclose(fp);
@@ -144,7 +148,7 @@ void
 print_row(const char* icon, const char* label, 
           const char* color, const char* value) 
 {
-    printf(WHITE "  │ " RESET "%s%s " WHITE "%-6s " WHITE "│ " RESET "%s%s\n", 
+    printf(RESET "  │ " RESET "%s%s " RESET "%-6s " RESET "│ " RESET "%s%s\n", 
            color, icon, label, color, value);
 }
 
@@ -170,7 +174,7 @@ main(void)
     
     print_distro_ascii(os.id);
 
-    printf(WHITE "  ┌──────────┐\n");
+    printf(RESET "  ┌──────────┐\n");
     print_row(BOLD   "󰀆", "USER",    RED,     uh.user);
     print_row(BOLD   "󰇥", "HOST",    YELLOW,  uh.host);
     print_row(BOLD   "", "SHELL",   GREEN,   sh.shell);
@@ -178,14 +182,16 @@ main(void)
     print_row(BOLD   "󰌽", "KERNEL",  BLUE,    kernel_full);
     print_row(BOLD   "󰥔", "UPTIME",  MAGENTA, uptime_full);
     print_row(BOLD   "󰍛", "MEMORY",  WHITE,   mem_full);
-    printf(WHITE "  ├──────────┤\n");
-    printf(WHITE "  │ " RESET BOLD "󰏘 COLORS " WHITE "│ " RESET);
+    printf(RESET "  ├──────────┤\n");
+    printf(RESET "  │ " RESET "󰏘 COLORS " "│ " RESET);
+
     int color_order[] = { 7, 1, 3, 2, 6, 4, 5, 0 };
+
     for (int i = 0; i < 8; i++) {
         printf("\033[3%dm󱡔 " RESET, color_order[i]);
     }
     printf("\n");
-    printf(WHITE "  └──────────┘" RESET "\n\n");
+    printf(RESET "  └──────────┘" RESET "\n\n");
 
     return 0;
 }

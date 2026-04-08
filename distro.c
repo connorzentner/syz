@@ -9,9 +9,8 @@ print_distro_ascii(const char *id)
 {
     bool show_distro = true;
 
-    if (!show_distro) {
+    if (!show_distro)
         goto generic;
-    }
     
     if (show_distro) {
         if (strcmp(id, "arch") == 0) {
