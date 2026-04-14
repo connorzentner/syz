@@ -175,15 +175,15 @@ main(void)
     print_distro_ascii(os.id);
 
     printf(RESET "  ┌──────────┐\n");
-    print_row(BOLD   "󰀆", "USER",    RED,     uh.user);
-    print_row(BOLD   "󰇥", "HOST",    YELLOW,  uh.host);
-    print_row(BOLD   "", "SHELL",   GREEN,   sh.shell);
-    print_row(BOLD   "", "DISTRO",  CYAN,    os.name);
-    print_row(BOLD   "󰌽", "KERNEL",  BLUE,    kernel_full);
-    print_row(BOLD   "󰥔", "UPTIME",  MAGENTA, uptime_full);
-    print_row(BOLD   "󰍛", "MEMORY",  WHITE,   mem_full);
+    print_row(BOLD   "󰀆", "user",    RED,     uh.user);
+    print_row(BOLD   "󰇥", "host",    YELLOW,  uh.host);
+    print_row(BOLD   "", "shell",   GREEN,   sh.shell);
+    print_row(BOLD   "", "distro",  CYAN,    os.name);
+    print_row(BOLD   "󰌽", "kernel",  BLUE,    kernel_full);
+    print_row(BOLD   "󰥔", "uptime",  MAGENTA, uptime_full);
+    print_row(BOLD   "󰍛", "memory",  WHITE,   mem_full);
     printf(RESET "  ├──────────┤\n");
-    printf(RESET "  │ " RESET "󰏘 COLORS " "│ " RESET);
+    printf(RESET "  │ " RESET "󰏘 colors " "│ " RESET);
 
     int color_order[] = { 7, 1, 3, 2, 6, 4, 5, 0 };
 
