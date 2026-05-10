@@ -6,7 +6,10 @@
 #include <sys/utsname.h>
 #include <limits.h>
 #include <pwd.h>
+
 #include "distro.h"
+
+#define BOX_WIDTH 24
 
 typedef struct {
     long used;
@@ -32,7 +35,8 @@ typedef struct {
     char shell[64];
 } Shell;
 
-Memory get_memory() {
+static
+Memory get_memory(void) {
     long total = 0, available = 0;
     FILE *fp = fopen("/proc/meminfo", "r");
 
@@ -48,17 +52,19 @@ Memory get_memory() {
         }
         fclose(fp);
     }
-    
+
     return (Memory) {
         .total = total / 1024,
         .used = (total - available) / 1024
     };
 }
 
-Uptime get_uptime() {
+static
+Uptime get_uptime(void)
+{
     struct sysinfo info;
-    
-    /* Initializing the struct to avoid garbage value */
+
+    /* Initializing to avoid garbage value */
     if (sysinfo(&info) != 0)
         return (Uptime){0, 0};
 
@@ -72,7 +78,9 @@ Uptime get_uptime() {
     };
 }
 
-UserHost get_user_host() {
+static
+UserHost get_user_host(void)
+{
     UserHost uh = {0};
 
     gethostname(uh.host, sizeof(uh.host));
@@ -87,7 +95,9 @@ UserHost get_user_host() {
     return uh;
 }
 
-OSInfo get_os_info() {
+static
+OSInfo get_os_info(void)
+{
     OSInfo os = {0};
     strncpy(os.name, "generic", sizeof(os.name) - 1);
     FILE *fp = fopen("/etc/os-release", "r");
@@ -109,7 +119,7 @@ OSInfo get_os_info() {
 
                 strncpy(os.name, name_start, sizeof(os.name) - 1);
                 found_name = true;
-            } 
+            }
 
             else if (strncmp(line, "ID=", 3) == 0) {
                 char *start = line + 3;
@@ -127,7 +137,9 @@ OSInfo get_os_info() {
     return os;
 }
 
-Shell get_shell() {
+static
+Shell get_shell(void)
+{
     Shell sh = { .shell = "unknown" };
     pid_t ppid = getppid();
     char path[64];
@@ -144,16 +156,15 @@ Shell get_shell() {
     return sh;
 }
 
-void 
-print_row(const char* icon, const char* label, 
-          const char* color, const char* value) 
+static void
+print_row(const char* color,
+		  const char* value)
 {
-    printf(RESET "  │ " RESET "%s%s " RESET "%-6s " RESET "│ " RESET "%s%s\n", 
-           color, icon, label, color, value);
+	printf(RESET " │ %s%-*s" RESET " │\n", color, BOX_WIDTH, value);
 }
 
-int 
-main(void) 
+int
+main(void)
 {
     struct utsname buffer;
     uname(&buffer);
@@ -170,28 +181,38 @@ main(void)
 
     snprintf(kernel_full, sizeof(kernel_full), "%s %s", buffer.sysname, buffer.release);
     snprintf(uptime_full, sizeof(uptime_full), "%dh %dm", up.hours, up.minutes);
-    snprintf(mem_full, sizeof(mem_full), YELLOW "%ld" WHITE " | " BLUE "%ld", mem.used, mem.total);
-    
+    snprintf(mem_full, sizeof(mem_full), "%ld MiB / %ld MiB", mem.used, mem.total);
+
     print_distro_ascii(os.id);
 
-    printf(RESET "  ┌──────────┐\n");
-    print_row(BOLD   "󰀆", "user",    RED,     uh.user);
-    print_row(BOLD   "󰇥", "host",    YELLOW,  uh.host);
-    print_row(BOLD   "", "shell",   GREEN,   sh.shell);
-    print_row(BOLD   "", "distro",  CYAN,    os.name);
-    print_row(BOLD   "󰌽", "kernel",  BLUE,    kernel_full);
-    print_row(BOLD   "󰥔", "uptime",  MAGENTA, uptime_full);
-    print_row(BOLD   "󰍛", "memory",  WHITE,   mem_full);
-    printf(RESET "  ├──────────┤\n");
-    printf(RESET "  │ " RESET "󰏘 colors " "│ " RESET);
+	const char *top    = " ┌──────────────────────────┐";
+    const char *mid    = " ├──────────────────────────┤";
+    const char *bottom = " └──────────────────────────┘";
 
-    int color_order[] = { 7, 1, 3, 2, 6, 4, 5, 0 };
+    printf(RESET "%s\n", top);
+	print_row(RESET, uh.user);
+    print_row(RESET, uh.host);
+    print_row(RESET, sh.shell);
+    print_row(RESET, os.name);
+    print_row(RESET, kernel_full);
+    print_row(RESET, uptime_full);
+    print_row(RESET, mem_full);
+    printf(RESET "%s\n", mid);
 
+    printf(RESET " │ ");
     for (int i = 0; i < 8; i++) {
-        printf("\033[3%dm󱡔 " RESET, color_order[i]);
+        printf("\033[4%dm   ", i);
     }
-    printf("\n");
-    printf(RESET "  └──────────┘" RESET "\n\n");
+    printf(RESET " │\n");
+
+    printf(RESET " │ ");
+    for (int i = 0; i < 8; i++) {
+        printf("\033[10%dm   ", i);
+    }
+    printf(RESET " │\n");
+
+    printf(RESET "%s\n", bottom);
+	printf("\n");
 
     return 0;
 }
